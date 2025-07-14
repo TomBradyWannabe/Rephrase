@@ -3,6 +3,43 @@
 <head>
   <title>Rephrase Game</title>
   <style>
+    .modal {
+      display: none;  /* Hidden by default */
+      position: fixed;
+      z-index: 1;  /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);  /* Black with opacity */
+      padding-top: 60px;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+      border-radius: 10px;
+    }
+
+    #startGameButton {
+      background-color: #007B8A;
+      color: white;
+      padding: 10px 20px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    #startGameButton:hover {
+      background-color: #005F5F;
+    }
     body {
       font-family: "Helvetica Neue", sans-serif;
       background-color: #f7f7f7;
@@ -337,7 +374,18 @@
   </style>
 </head>
 <body>
-
+  <div id="welcomeModal" class="modal">
+    <div class="modal-content">
+      <h2>Welcome to Rephrase!</h2>
+      <p>Rearrange the letters from the given phrase into new, valid words.</p>
+      <p>Try to use as many letters as possible — it's possible to use them all!</p> 
+      <p>Words must be at least 3 letters long.</p>
+      <p>You can’t reuse letters or use words from the original phrase.</p>
+      <p>Feel free to give up at any time, and your score will be logged as a percentage of letters used.</p>
+      <p>No pressure, but you're being timed! Hurry up if you want to compare against friends.</p>
+      <button id="startGameButton">Ready to Play</button>
+    </div>
+  </div>
   <div class="header-row" style="margin-bottom: 0.2em;">
     <div style="width: 33%; text-align: left;">
       <button id="archiveButton" onclick="goToArchive()" style="background: none; border: none; color: #007B8A; font-size: 0.95em; cursor: pointer; text-decoration: underline;">
@@ -355,7 +403,7 @@
 
   <div id="instructionBox">
     <strong>Welcome to Rephrase!</strong><br><br>
-    Rearrange all the letters from the given phrase into new, valid words.<br><br>
+    Rearrange the letters from the given phrase into new, valid words.<br><br>
     <ul>
       <li>Try to use as many letters as possible — it's possible to use them all!</li>
       <li>Words must be at least 3 letters long.</li>
@@ -397,7 +445,24 @@
       "You surrendered with honor. A noble retreat.",
       "You’ve left a few letters on the table. A poetic mystery remains!",
     ];
+    // When the page loads, show the modal
+    window.onload = function() {
+      const modal = document.getElementById('welcomeModal');
+      modal.style.display = "block";  // Show the modal
+    };
 
+    // When the player clicks "Ready to Play", close the modal and start the game
+    document.getElementById('startGameButton').onclick = function() {
+      const modal = document.getElementById('welcomeModal');
+      modal.style.display = "none";  // Hide the modal
+      startGame();  // Function to start the game and the timer
+    };
+
+    function startGame() {
+      // Your existing game logic to start the timer and game
+      startTimer();
+      // Any other game initialization logic
+    }
     function toggleInstructions() {
       const box = document.getElementById('instructionBox');
       box.style.display = box.style.display === 'none' ? 'block' : 'none';
