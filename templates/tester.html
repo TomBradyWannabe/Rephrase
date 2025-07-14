@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Phrase Tester</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+      background: #f9f9f9;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      margin-bottom: 10px;
+    }
+    input[type="submit"] {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      background: #f4ce42;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .result {
+      margin-top: 20px;
+      background: #fff;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+  <h1>Phrase Tester</h1>
+  <form method="POST">
+    <input type="text" name="phrase" placeholder="Enter a phrase..." value="{{ phrase }}">
+    <input type="submit" value="Test Phrase">
+  </form>
+
+  {% if result %}
+    <div class="result">
+      <strong>Letters:</strong> {{ phrase | replace(" ", "") }} ({{ result.letter_count }} total)<br>
+      <strong>Solvable:</strong> {{ '✅ Yes' if result.found else '❌ No' }}<br>
+      <strong>Time:</strong> {{ result.time }}s<br>
+      {% if result.solutions %}
+        <strong>Example solution:</strong>
+        <ul>
+          {% for word in result.solutions[0] %}
+            <li>{{ word }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+  {% endif %}
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rephrase Archive</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      font-family: "Georgia", serif;
+      font-size: 2em;
+      color: #444;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-bottom: 20px;
+      font-size: 0.95em;
+      color: #007B8A;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .archive-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 12px;
+    }
+
+    .day-link {
+      background: #c8d6d4;
+      color: #222;
+      text-align: center;
+      padding: 10px;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-decoration: none;
+    }
+
+    .day-link:hover {
+      background: #b1c4c1;
+    }
+  </style>
+</head>
+<body>
+  <h1>Past Puzzles</h1>
+  <a class="back-link" href="/">← Back to Today’s Puzzle</a>
+  <div class="archive-grid" id="archiveList"></div>
+
+  <script>
+    const pastDays = {{ past_days | tojson }};  // Now the list is passed correctly from Flask
+
+    const container = document.getElementById("archiveList");
+
+    pastDays.forEach((day) => {
+      const link = document.createElement("a");
+      link.href = `/archive/${day.toString().padStart(3, '0')}`;  // Ensure it's zero-padded
+      link.className = "day-link";
+      link.textContent = `Day ${day}`;
+      container.appendChild(link);
+    });
+  </script>
+
+</body>
+</html>
