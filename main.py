@@ -10,7 +10,7 @@ import json
 app = Flask(__name__)
 
 MIN_WORD_LEN = 3
-PUZZLE_START_DATE = date(2025, 7, 11)
+PUZZLE_START_DATE = date(2025, 7, 10)
 
 # Load valid words once at startup
 with open('wordlist.txt') as f:
@@ -21,8 +21,9 @@ with open('wordlist.txt') as f:
     }
 
 # Load all phrases once at startup
-with open("puzzles.txt") as f:
-    PUZZLES = [line.strip().upper() for line in f if line.strip()]
+def load_puzzles():
+    with open("puzzles.txt") as f:
+        return [line.strip() for line in f if line.strip()]
 
 # Give-up message pool
 GIVE_UP_MESSAGES = [
@@ -46,12 +47,15 @@ def get_today_date_string():
     return get_today().strftime("%A, %B %d, %Y")
 
 def get_puzzle_number():
-    return (get_today() - PUZZLE_START_DATE).days + 1
+    return (get_today() - PUZZLE_START_DATE).days + 1  # Puzzle number based on date
 
 def get_daily_phrase():
-    today = get_today()
-    index = int(hashlib.sha256(today.isoformat().encode()).hexdigest(), 16) % len(PUZZLES)
-    return PUZZLES[index]
+    puzzle_number = get_puzzle_number()
+    puzzles = load_puzzles()  # Load puzzles from file
+    if puzzle_number <= len(puzzles):  # Ensure we're within the range of available puzzles
+        return puzzles[puzzle_number - 1]  # Adjust for 0-based index
+    else:
+        return "No more puzzles available"
 
 @app.route('/')
 def index():
@@ -159,8 +163,6 @@ def archive():
 
     return render_template('archive.html', past_days=past_days)
 
-
-
 @app.route('/archive/<int:day>')
 def get_archive(day):
     try:
@@ -179,14 +181,3 @@ def get_archive(day):
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80)  # Ensure Replit runs it on the right port
-        
-@app.route('/puzzles/<filename>')
-def serve_puzzle(filename):
-    try:
-        # Serve static files from the 'puzzles' folder
-        return app.send_static_file(f"puzzles/{filename}")
-    except FileNotFoundError:
-        return jsonify({'error': 'Puzzle not found'}), 404
-
-if __name__ == '__main__':
-    app.run(debug=False)  # Ensure this line is properly indented to run the app
