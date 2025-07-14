@@ -26,7 +26,13 @@
       text-align: center;
       border-radius: 10px;
     }
-
+    .modal-content p {
+      font-size: 1em;  /* Slightly smaller font size */
+      font-family: "Georgia", serif;  /* Elegant and sophisticated font */
+      line-height: 1.6;  /* Increase line height for readability */
+      color: #333;  /* A dark, soft color for better contrast */
+      text-align: left;
+    }
     #startGameButton {
       background-color: #007B8A;
       color: white;
@@ -380,6 +386,7 @@
       <p>Rearrange the letters from the given phrase into new, valid words.</p>
       <p>Try to use as many letters as possible — it's possible to use them all!</p> 
       <p>Words must be at least 3 letters long.</p>
+      <p>Click the X to return any submitted word back to the letter bank.</p>
       <p>You can’t reuse letters or use words from the original phrase.</p>
       <p>Feel free to give up at any time, and your score will be logged as a percentage of letters used.</p>
       <p>No pressure, but you're being timed! Hurry up if you want to compare against friends.</p>
@@ -407,6 +414,7 @@
     <ul>
       <li>Try to use as many letters as possible — it's possible to use them all!</li>
       <li>Words must be at least 3 letters long.</li>
+      <li>Click the X to return any submitted word back to the letter bank</li>
       <li>Feel free to give up at any time, and your score will be logged as a percentage of letters used.</li>
       <li>You can’t reuse letters or use words from the original phrase.</li>
       <li>No pressure, but you're being timed! Hurry up if you want to compare against friends.</li>
@@ -445,7 +453,7 @@
       "You surrendered with honor. A noble retreat.",
       "You’ve left a few letters on the table. A poetic mystery remains!",
     ];
-    // When the page loads, show the modal
+   
     window.onload = function() {
       const modal = document.getElementById('welcomeModal');
       modal.style.display = "block";  // Show the modal
@@ -457,11 +465,27 @@
       modal.style.display = "none";  // Hide the modal
       startGame();  // Function to start the game and the timer
     };
-
+    // Pause the timer before the page unloads (refresh or navigate)
+    window.addEventListener('beforeunload', function() {
+      if (timerInterval) {
+        clearInterval(timerInterval);  // Clear the ongoing timer
+        localStorage.setItem('finalTime', finalTime);  // Save the final time when leaving
+      }
+    });
     function startGame() {
-      // Your existing game logic to start the timer and game
-      startTimer();
-      // Any other game initialization logic
+      // Check if there is a saved start time in localStorage
+      const savedStartTime = localStorage.getItem('startTime');
+
+      if (savedStartTime) {
+        // If there is, resume from the saved start time
+        startTime = parseInt(savedStartTime);
+      } else {
+        // If there's no saved start time (new game), store the current time as start time
+        startTime = Date.now();
+        localStorage.setItem('startTime', startTime);
+      }
+
+      startTimer();  // Start the timer
     }
     function toggleInstructions() {
       const box = document.getElementById('instructionBox');
@@ -802,7 +826,6 @@
     renderLetterPool();
     renderWordList();
     updateProgress();
-    startTimer();
   </script>
 </body>
 </html>
