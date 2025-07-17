@@ -377,6 +377,37 @@
       margin-left: auto;
       margin-right: auto;
     }
+    .letter-count-message {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.75); /* Slightly darker */
+      color: white;
+      font-size: 1.2em;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      animation: fadeInOut 2s forwards;
+    }
+    /* Add specific colors for 5+ and 7+ */
+    .letter-count-message.nice-5 {
+      background-color: #9b3b55; /* Red for 5+ */
+    }
+
+    .letter-count-message.impressive-7 {
+      background-color: #d69f1f; /* Gold for 7+ */
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      25% { opacity: 1; }
+      75% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
   </style>
 </head>
 <body>
@@ -490,6 +521,19 @@
     function toggleInstructions() {
       const box = document.getElementById('instructionBox');
       box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+    function showLetterCountMessage(message, type) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'letter-count-message ' + type; // Add the type class (nice-5 or impressive-7)
+      msgDiv.innerText = message;
+
+      // Append to the body
+      document.body.appendChild(msgDiv);
+
+      // Set timeout to remove the message after 2 seconds
+      setTimeout(() => {
+        msgDiv.remove();
+      }, 2000);
     }
 
     async function updateProgress() {
@@ -618,13 +662,15 @@
           return;  // Exit early if wordElement doesn't exist
         }
 
-        // Display badge next to the word based on word length
-        if (w.length >= 7) {
-          addBadge(wordElement, "7+");
-        } else if (w.length >= 5) {
-          addBadge(wordElement, "5+");
-        }
-      } else {
+          // Display badge next to the word based on word length
+          if (w.length >= 7) {
+            addBadge(wordElement, "7+");
+            showLetterCountMessage("Impressive! 7+ letters", "impressive-7"); // Pass "impressive-7" for gold color
+          } else if (w.length >= 5) {
+            addBadge(wordElement, "5+");
+            showLetterCountMessage("Nice! 5+ letters", "nice-5"); // Pass "nice-5" for red color
+          }
+        }else {
         showInvalidInput(j.message);  // Handle server-side validation errors
       }
 

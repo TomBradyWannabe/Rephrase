@@ -83,7 +83,11 @@ def submit_word():
 
     if word in phrase_words:
         return jsonify({'ok': False, 'message': 'That word is part of the original phrase.'})
-
+    # New check: Prevent words that are the original phrase word + "s"
+    if word.endswith('s'):
+        base_word = word[:-1]  # Remove the 's' from the end
+        if base_word in phrase_words:
+            return jsonify({'ok': False, 'message': f'"{word}" is invalid because it is just "{base_word}" from the phrase with an added "s".'})
     for phrase_word in phrase_words:
         if phrase_word.startswith(word) or phrase_word.endswith(word):
             if word != phrase_word and len(word) >= 3:
