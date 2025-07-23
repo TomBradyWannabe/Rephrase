@@ -20,7 +20,7 @@ def get_pg_connection():
 app = Flask(__name__)
 
 MIN_WORD_LEN = 3
-PUZZLE_START_DATE = date(2025, 7, 10)
+PUZZLE_START_DATE = date(2025, 7, 23)
 
 # Load valid words once at startup
 with open('wordlist.txt') as f:
