@@ -275,39 +275,44 @@
     .leaderboard-entry {
       display: flex;
       justify-content: space-between;
+      align-items: baseline;
       padding: 4px 0;
       border-bottom: 1px solid #f0f0f0;
       font-size: 0.9em;
       color: #333;
+      gap: 10px;  /* add slight breathing room between name and stats */
     }
-    
+
     .leaderboard-entry:last-child {
       border-bottom: none;
     }
 
-    .leaderboard-name {
-      font-weight: 500;
-      flex: 1;
+    .leaderboard-entry {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 4px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.9em;
+      color: #333;
+      gap: 10px;  /* add slight breathing room between name and stats */
     }
 
     .leaderboard-stats {
       font-family: "Georgia", serif;
       color: #777;
-      text-align: right;
+      text-align: left;
+      flex-shrink: 0;
       white-space: nowrap;
     }
 
     .highlighted-entry {
       background-color: #fffbe6;
       font-weight: bold;
-    }
-    
-    .highlighted-entry {
-      background-color: #fffbe6; /* soft yellow background */
-      font-weight: bold;
       border-radius: 6px;
       padding: 6px 10px;
     }
+
 
     .badge {
       position: fixed;
@@ -506,6 +511,28 @@
       font-weight: bold;
       color: #B86E3C;
     }
+
+    .results-box .stat-line {
+      display: flex;
+      align-items: baseline;
+      margin-bottom: 6px;
+      font-size: 0.95em;
+      font-family: "Georgia", serif;
+      color: #333;
+    }
+
+    .results-box .label {
+      min-width: 110px;  /* ensures alignment */
+      color: #555;
+      font-weight: normal;
+      text-align: left;
+    }
+
+    .results-box .value {
+      font-weight: bold;
+      color: #222;
+      text-align: left;
+    }
     
     .results-box {
       background: #cfdedd;
@@ -634,10 +661,10 @@
   <div id="progress">0% used (0/?)</div>
   <div id="completionStats" class="results-box" style="display: none;">
     <h2>Your Results Today</h2>
-    <p id="timeUsed"></p>
-    <p id="lettersUsed"></p>
-    <p id="statWords"></p>
-    <p id="longWords"></p>
+    <div class="stat-line"><span class="label">Time:</span> <span id="timeUsed" class="value">—</span></div>
+    <div class="stat-line"><span class="label">Letters used:</span> <span id="lettersUsed" class="value">—</span></div>
+    <div class="stat-line"><span class="label">Words found:</span> <span id="statWords" class="value">—</span></div>
+    <div class="stat-line"><span class="label">Word length:</span> <span id="longWords" class="value">—</span></div>
 
     <div id="leaderboardForm">
       <input type="text" id="playerName" placeholder="Your name">
@@ -645,6 +672,7 @@
       <p id="submitStatus"></p>
     </div>
   </div>
+
   
   <button id="shareBtn" onclick="shareResult()">Share Result</button>
   
@@ -724,22 +752,19 @@
           finalTime = time;
           const minutes = Math.floor(time / 60);
           const seconds = time % 60;
-          message += `⏱ Time: ${minutes}:${seconds.toString().padStart(2, '0')}<br>`;
-          document.getElementById("timeUsed").innerText = `⏱ Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+          document.getElementById("timeUsed").innerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
 
         if (!isNaN(percent)) {
-          message += `🧩 Letters Used: ${percent}%`;
-          document.getElementById("lettersUsed").innerText = `🧩 Letters Used: ${percent}%`;
+          document.getElementById("lettersUsed").innerText = `${percent}%`;
         }
 
         const totalWords = storedWords.length;
-        message += `📝 Words found: ${totalWords}<br>`;
-        document.getElementById("statWords").innerText = `📝 Words found: ${totalWords}`;
+        document.getElementById("statWords").innerText = `${totalWords}`;
 
         const fivePlus = storedWords.filter(w => w.length >= 5).length;
         const sevenPlus = storedWords.filter(w => w.length >= 7).length;
-        document.getElementById("longWords").innerText = `⭐ 5+ letters: ${fivePlus} • 7+ letters: ${sevenPlus}`;
+        document.getElementById("longWords").innerText = `5+ letters: ${fivePlus} • 7+ letters: ${sevenPlus}`;
 
         // Show modal
         document.getElementById("alreadyPlayedModal").style.display = "block";
@@ -825,13 +850,12 @@
           // ✅ Populate completion stats now (mimics the reload path)
           const minutes = Math.floor(finalTime / 60);
           const seconds = finalTime % 60;
-          document.getElementById("timeUsed").innerText = `⏱ Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-          document.getElementById("lettersUsed").innerText = `🧩 Letters Used: 100%`;
-          document.getElementById("statWords").innerText = `📝 Words found: ${words.length}`;
-
+          document.getElementById("timeUsed").innerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+          document.getElementById("lettersUsed").innerText = `100%`;
+          document.getElementById("statWords").innerText = `${words.length}`;
           const fivePlus = words.filter(w => w.length >= 5).length;
           const sevenPlus = words.filter(w => w.length >= 7).length;
-          document.getElementById("longWords").innerText = `⭐ 5+ letters: ${fivePlus} • 7+ letters: ${sevenPlus}`;
+          document.getElementById("longWords").innerText = `5+ letters: ${fivePlus} • 7+ letters: ${sevenPlus}`;
 
           // ✅ Make sure the leaderboard form is visible
           document.getElementById("leaderboardForm").style.display = "block";
@@ -1231,11 +1255,32 @@
         `⏱ Time: ${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
 
-    function shareResult() {
+    async function shareResult() {
       const phrase = "{{ phrase }}";
       const number = {{ puzzle_number }};
       const count = words.length;
-      const progressText = document.getElementById("progress").innerText;
+
+      // Get updated progress data from backend
+      let percent = "—";
+      let used = "?";
+      let total = "?";
+
+      try {
+        const res = await fetch('/progress', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ words, puzzle_number: number })
+        });
+
+        const data = await res.json();
+        if (data.ok) {
+          percent = data.percent;
+          used = data.used_letters;
+          total = data.total_letters;
+        }
+      } catch (err) {
+        console.error("Error getting progress for share:", err);
+      }
 
       // Time display
       let timeDisplay = "⏱ Time: N/A";
@@ -1245,15 +1290,13 @@
         timeDisplay = `⏱ Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
       }
 
-      // ✅ Add word-length achievements
       const fivePlus = words.filter(w => w.length >= 5).length;
       const sevenPlus = words.filter(w => w.length >= 7).length;
 
-      // ✅ Box emoji: green for win, yellow for give-up
       const boxEmoji = gaveUp ? "🟨" : "🟩";
 
       const result = `${boxEmoji} Rephrase #${number}
-    ${progressText}
+    ${percent}% used (${used}/${total})
     📝 ${count} word${count !== 1 ? 's' : ''}
     ⭐ 5+ letters: ${fivePlus} • 7+ letters: ${sevenPlus}
     ${timeDisplay}
@@ -1267,6 +1310,7 @@
         }, 2500);
       });
     }
+
     
     async function submitToLeaderboard() {
       const key = `leaderboard_submitted_${puzzleNumber}`;
