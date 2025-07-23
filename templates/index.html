@@ -1,0 +1,1367 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rephrase Game</title>
+  <style>
+    .modal {
+      display: none;  /* Hidden by default */
+      position: fixed;
+      z-index: 1;  /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);  /* Black with opacity */
+      padding-top: 60px;
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      max-width: 400px;
+      text-align: center;
+      border-radius: 10px;
+    }
+    .modal-content p {
+      font-size: 1em;  /* Slightly smaller font size */
+      font-family: "Georgia", serif;  /* Elegant and sophisticated font */
+      line-height: 1.6;  /* Increase line height for readability */
+      color: #333;  /* A dark, soft color for better contrast */
+      text-align: left;
+    }
+    #startGameButton {
+      background-color: #007B8A;
+      color: white;
+      padding: 10px 20px;
+      font-size: 1.1em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    #startGameButton:hover {
+      background-color: #005F5F;
+    }
+    body {
+      font-family: "Helvetica Neue", sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h1 {
+      font-family: "Georgia", serif;
+      font-size: 2.3em;
+      color: #444;
+      text-align: center;
+      flex: 1;
+    }
+
+    #howToPlayButton, #archiveButton {
+      font-size: 0.9em;
+      color: #007B8A;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    #date, #byline {
+      font-size: 0.95em;
+      color: #777;
+      text-align: center;
+    }
+
+    #byline {
+      font-style: italic;
+    }
+
+    #timer {
+      text-align: center;
+      margin-top: 10px;
+      font-weight: bold;
+      font-size: 1em;
+    }
+
+    #phrase {
+      font-size: 1.3em;
+      font-weight: bold;
+      background: #ececec;
+      padding: 12px 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    #letterPool {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 12px;
+      background: #fdfdf5;
+      border: 1px solid #ccc;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+      margin-bottom: 20px;
+      justify-content: flex-start;
+    }
+
+    .word-tile, .letter-tile {
+      display: inline-flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .letter-tile {
+      display: flex;               /* Use flexbox for alignment */
+      justify-content: center;     /* Center the letter horizontally */
+      align-items: center;         /* Center the letter vertically */
+      width: 32px;
+      height: 32px;
+      background: white;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 1.1em;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      border: 1px solid #ddd;
+    }
+
+    #input {
+      width: 100%;
+      font-size: 16.001px;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      margin-bottom: 5px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    #errorMessage {
+      color: red;
+      font-size: 0.9em;
+      margin-bottom: 10px;
+      display: none;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    button {
+      background: #c8d6d4;
+      color: #222;
+      font-weight: bold;
+      padding: 10px 16px;
+      font-size: 0.95em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: #b1c4c1;
+    }
+
+    #words {
+      list-style: none;
+      padding-left: 0;
+      margin-top: 20px;
+    }
+
+    #words li {
+      background: #e0e0e0;
+      padding: 8px 12px;
+      border-radius: 10px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #progress {
+      margin-top: 20px;
+      font-weight: bold;
+      display: none;
+      text-align: center;
+    }
+
+    .space-tile {
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      width: 16px;
+      height: 32px;
+    }
+
+    #shareBtn {
+      background: #4B6D7C;
+      color: white;
+      font-weight: bold;
+      padding: 10px 16px;
+      font-size: 0.95em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      display: none;
+      margin-top: 10px;
+      margin-left: auto;
+      margin-right: auto;
+      transition: background 0.2s;
+    }
+
+    #shareBtn:hover {
+      background: #457B9D;
+    }
+
+    #instructionBox {
+      display: none;
+      background: #f0f7f7;
+      color: #333;
+      border: 1px solid #b1c4c1;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 20px;
+      font-size: 0.95em;
+    }
+
+    #instructionBox ul {
+      padding-left: 20px;
+      margin: 0;
+    }
+    #leaderboardBox {
+      display: none;  /* ⛔ Hidden until triggered */
+      margin-top: 20px;
+      background: #fdfaf6;
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: 1px solid #ddd;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+      font-family: "Helvetica Neue", sans-serif;
+    }
+
+    #leaderboardBox h2 {
+      font-family: "Georgia", serif;
+      font-size: 1.2em;  /* Slightly smaller */
+      font-weight: bold;
+      margin: 0 0 8px 0;  /* Remove top margin */
+      text-align: center;
+      color: #444;
+    }
+
+    #leaderboardList {
+      list-style: none;
+      padding-left: 0;
+      margin: 0;
+    }
+
+    .leaderboard-entry {
+      display: flex;
+      justify-content: space-between;
+      padding: 4px 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.9em;
+      color: #333;
+    }
+    
+    .leaderboard-entry:last-child {
+      border-bottom: none;
+    }
+
+    .leaderboard-name {
+      font-weight: 500;
+      flex: 1;
+    }
+
+    .leaderboard-stats {
+      font-family: "Georgia", serif;
+      color: #777;
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .highlighted-entry {
+      background-color: #fffbe6;
+      font-weight: bold;
+    }
+    
+    .highlighted-entry {
+      background-color: #fffbe6; /* soft yellow background */
+      font-weight: bold;
+      border-radius: 6px;
+      padding: 6px 10px;
+    }
+
+    .badge {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.2em;
+      font-weight: bold;
+      background-color: rgba(0, 255, 0, 0.8);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      animation: fadeInOut 2s forwards;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      25% { opacity: 1; }
+      75% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .word-tile {
+      position: relative;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      white-space: nowrap;
+      gap: 8px;
+    }
+
+    .word-badge {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.8em;
+      font-weight: bold;
+      color: #ffffff;
+      padding: 5px 10px;
+      border-radius: 50%;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .word-badge.badge-7plus { background-color: #d69f1f; }
+    .word-badge.badge-5plus { background-color: #9b3b55; }
+
+    .remove-btn {
+      background: none;
+      color: #888;
+      border: none;
+      font-size: 1em;
+      cursor: pointer;
+      padding: 0 6px;
+      transition: color 0.2s;
+      position: relative;
+      margin-left: auto;
+    }
+
+    .remove-btn:hover { color: #c00; }
+
+    /* Styling for the Give Up button */
+    #giveUpButton {
+      background: #C13C3C;
+      color: #fff;
+      font-weight: bold;
+      padding: 10px 16px;
+      font-size: 0.95em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #giveUpButton:hover { background: #d32f2f; }
+
+    /* Shuffle Letters button styling */
+    #shuffleButton {
+      background: #4B6D7C;
+      color: white;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 50px;
+      height: 50px;
+      padding: 0;
+    }
+
+    #shuffleButton:hover { background: #457B9D; }
+
+    #submitButton {
+      background: #c8d6d4;
+      color: #222;
+      font-weight: bold;
+      padding: 10px 16px;
+      font-size: 0.95em;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    #submitButton:hover { background: #b1c4c1; }
+
+    /* Button container adjustments */
+    .button-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      width: 100%;
+    }
+
+    .button-row button {
+      height: 50px;
+      min-width: 120px;
+      padding: 0 16px;
+      font-size: 0.95em;
+    }
+
+    /* Shuffle button centering */
+    .button-row button#shuffleButton {
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .letter-count-message {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: rgba(0, 0, 0, 0.75); /* Slightly darker */
+      color: white;
+      font-size: 1.2em;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      opacity: 0;
+      animation: fadeInOut 2s forwards;
+    }
+    /* Add specific colors for 5+ and 7+ */
+    .letter-count-message.nice-5 {
+      background-color: #9b3b55; /* Red for 5+ */
+    }
+
+    .letter-count-message.impressive-7 {
+      background-color: #d69f1f; /* Gold for 7+ */
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      25% { opacity: 1; }
+      75% { opacity: 1; }
+      100% { opacity: 0; }
+    }
+    .perfect-score-popup {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #b86e3c;
+      color: white;
+      font-size: 1.4em;
+      font-weight: bold;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 1000;
+      opacity: 0;
+      animation: popFade 4.5s forwards;
+    }
+
+    @keyframes popFade {
+      0% { transform: translate(-50%, -60%); opacity: 0; }
+      10% { transform: translate(-50%, -50%); opacity: 1; }
+      90% { opacity: 1; }
+      100% { transform: translate(-50%, -40%); opacity: 0; }
+    }
+    
+    .time-highlight {
+      font-weight: bold;
+      color: #4B5E6B;
+    }
+    
+    .perfect-highlight {
+      font-weight: bold;
+      color: #B86E3C;
+    }
+    
+    .results-box {
+      background: #cfdedd;
+      padding: 18px 20px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+      margin-top: 25px;
+      text-align: center;
+      font-family: "Georgia", serif;
+    }
+
+    .results-box h2 {
+      font-family: "Georgia", serif;
+      font-size: 1.3em;
+      color: #444;
+      margin-top: 4px;
+      margin-bottom: 10px;
+    }
+
+    .results-box p {
+      font-size: 1em;
+      margin: 4px 0;
+      color: #333;
+      font-weight: bold;
+    }
+
+    #leaderboardForm {
+      margin-top: 15px;
+    }
+
+    #leaderboardForm input[type="text"] {
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 16.001px;
+    }
+
+    #leaderboardForm button {
+      margin-left: 10px;
+      padding: 8px 14px;
+      font-size: 0.95em;
+      font-weight: bold;
+      background: #b86e3c;
+      color: #222;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    #leaderboardForm button:hover {
+      background: #9c582f;
+    }
+
+    #submitStatus {
+      margin-top: 10px;
+      font-weight: normal;
+      color: #444;
+      font-size: 0.95em;
+    }
+  </style>
+</head>
+<body>
+  <div id="welcomeModal" class="modal">
+    <div class="modal-content">
+      <h2>Welcome to Rephrase!</h2>
+      <ul style="text-align: left; font-size: 1em; line-height: 1.6; padding-left: 0; list-style: none; margin: 0;">
+        <li>🧩 Use letters from the phrase to make new words</li>
+        <li>📏 Words must be 3+ letters</li>
+        <li>⛔ No words from the original phrase</li>
+        <li>❌ Click a word to undo it</li>
+        <li>🏁 Try to use every letter!</li>
+      </ul>
+      <button id="startGameButton">Ready to Play</button>
+    </div>
+  </div>
+  <div class="header-row" style="margin-bottom: 0.2em;">
+    <div style="width: 33%; text-align: left;">
+      <div style="margin-bottom: 4px;">
+        <button id="archiveButton" onclick="goToArchive()" style="background: none; border: none; color: #007B8A; font-size: 0.95em; cursor: pointer; text-decoration: underline;">
+          Past Puzzles
+        </button>
+      </div>
+      {% if archive %}
+        <a href="/" style="color: #007B8A; font-size: 0.9em; font-weight: bold; text-decoration: underline;">
+          Return to Today
+        </a>
+      {% endif %}
+    </div>
+    <h1>Rephrase</h1>
+    <div style="width: 33%; text-align: right;">
+      <button id="howToPlayButton" onclick="toggleInstructions()">How to Play</button>
+    </div>
+  </div>
+  <div id="date">Puzzle #{{ puzzle_number }} • {{ date }}</div>
+  <div id="byline">By Chase Dittrich</div>
+  <div id="timer"></div>
+
+  <div id="instructionBox">
+    <ul style="text-align: left; font-size: 1em; line-height: 1.6; padding-left: 0; list-style: none; margin: 0;">
+      <li>🧩 Use letters from the phrase to make new words</li>
+      <li>📏 Words must be 3+ letters</li>
+      <li>⛔ No words from the original phrase</li>
+      <li>❌ Click a word to undo it</li>
+      <li>🏁 Try to use every letter!</li>
+    </ul>
+  </div>
+ 
+  <div id="letterPool"></div>
+
+  <input id="input" type="text" placeholder="Enter word" onkeydown="handleKey(event)" />
+  <div id="errorMessage"></div>
+
+  <div class="button-row">
+    <button id="submitButton" onclick="submitWord()">Submit</button>
+    <button id="shuffleButton" onclick="shuffleLetters()">Shuffle</button>
+    <button id="giveUpButton" onclick="giveUp()">Give Up</button>
+  </div>
+  
+  <div id="leaderboardBox">
+    <h2>🏆 Daily Leaderboard</h2>
+    <ol id="leaderboardList"></ol>
+  </div>
+  
+  <ul id="words"></ul>
+  <div id="progress">0% used (0/?)</div>
+  <div id="completionStats" class="results-box" style="display: none;">
+    <h2>Your Results Today</h2>
+    <p id="timeUsed"></p>
+    <p id="lettersUsed"></p>
+    <p id="statWords"></p>
+    <p id="longWords"></p>
+
+    <div id="leaderboardForm">
+      <input type="text" id="playerName" placeholder="Your name">
+      <button onclick="submitToLeaderboard()">Submit to Leaderboard</button>
+      <p id="submitStatus"></p>
+    </div>
+  </div>
+  
+  <button id="shareBtn" onclick="shareResult()">Share Result</button>
+  
+  <div id="copyConfirm" style="display: none; text-align: center; color: green; margin-top: 6px; font-size: 0.9em;">
+    Results copied to clipboard!
+  </div>
+  
+  <script>
+    const puzzleNumber = {{ puzzle_number | tojson }};
+    window.originalPhrase = "{{ phrase|lower }}";
+  </script>
+  
+  <script>
+    let words = [];
+    const padded = String(puzzleNumber).padStart(3, '0');
+    const storedWords = JSON.parse(localStorage.getItem(`submittedWords_${padded}`) || "[]");
+    words = storedWords;
+    const status = localStorage.getItem(`puzzle_completed_${padded}`);
+    if (status === "true" || status === "gave_up") {
+      document.getElementById('shareBtn').style.display = 'inline-block';
+    }
+    let gaveUp = false;
+    const puzzleDate = "{{ date }}";
+    
+    window.onload = async function() {
+      const padded = String(puzzleNumber).padStart(3, '0');
+      const status = localStorage.getItem(`puzzle_completed_${padded}`);
+
+      if (status === "true" || status === "gave_up") {
+        await startGame();  // Automatically show completion modal
+      } else {
+        const modal = document.getElementById('welcomeModal');
+        modal.style.display = "block";  // Show instructions modal
+      }
+    };
+
+
+    // When the player clicks "Ready to Play", close the modal and start the game
+    document.getElementById('startGameButton').onclick = function() {
+      const modal = document.getElementById('welcomeModal');
+      modal.style.display = "none";  // Hide the modal
+      startGame();  // Function to start the game and the timer
+    };
+    // Pause the timer before the page unloads (refresh or navigate)
+    window.addEventListener('beforeunload', function() {
+      if (timerInterval) {
+        clearInterval(timerInterval);  // Clear the ongoing timer
+        localStorage.setItem('finalTime', finalTime);  // Save the final time when leaving
+      }
+    });
+    
+    async function startGame() {
+      const padded = String(puzzleNumber).padStart(3, '0');
+      const status = localStorage.getItem(`puzzle_completed_${padded}`);
+      const time = parseInt(localStorage.getItem(`puzzle_time_${padded}`), 10);
+      const percent = parseInt(localStorage.getItem(`puzzle_percent_${padded}`), 10);
+
+      if (status === "true" || status === "gave_up") {
+        let message = "";
+
+        const modalTitle = document.querySelector("#alreadyPlayedModal h2");
+        const modalText = document.getElementById("completedTimeInfo");
+
+        if (status === "gave_up") {
+          modalTitle.innerText = "You Gave Up";
+        } else {
+          modalTitle.innerText = "Already Completed";
+        }
+
+        words = JSON.parse(
+          localStorage.getItem(`submittedWords_${puzzleNumber}`) || 
+          localStorage.getItem(`submittedWords_${String(puzzleNumber).padStart(3, '0')}`) || 
+          "[]"
+        );
+        const storedWords = words;
+        if (!isNaN(time)) {
+          finalTime = time;
+          const minutes = Math.floor(time / 60);
+          const seconds = time % 60;
+          message += `⏱ Time: ${minutes}:${seconds.toString().padStart(2, '0')}<br>`;
+          document.getElementById("timeUsed").innerText = `⏱ Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        if (!isNaN(percent)) {
+          message += `🧩 Letters Used: ${percent}%`;
+          document.getElementById("lettersUsed").innerText = `🧩 Letters Used: ${percent}%`;
+        }
+
+        const totalWords = storedWords.length;
+        message += `📝 Words found: ${totalWords}<br>`;
+        document.getElementById("statWords").innerText = `📝 Words found: ${totalWords}`;
+
+        const fivePlus = storedWords.filter(w => w.length >= 5).length;
+        const sevenPlus = storedWords.filter(w => w.length >= 7).length;
+        document.getElementById("longWords").innerText = `⭐ 5+ letters: ${fivePlus} • 7+ letters: ${sevenPlus}`;
+
+        // Show modal
+        document.getElementById("alreadyPlayedModal").style.display = "block";
+
+        // 🛑 Disable gameplay
+        document.getElementById("input").style.display = "none";
+        document.querySelector(".button-row").style.display = "none";
+
+        // ✅ Show stats section
+        document.getElementById("completionStats").style.display = "block";
+        document.getElementById("leaderboardBox").style.display = "block";
+        if (percent > 0) {
+          document.getElementById("leaderboardForm").style.display = "block";
+        }
+        await loadLeaderboard();
+        return;
+      }
+
+      // ⏱ Start or resume timer
+      const savedStartTime = localStorage.getItem('startTime');
+      if (savedStartTime) {
+        startTime = parseInt(savedStartTime);
+      } else {
+        startTime = Date.now();
+        localStorage.setItem('startTime', startTime);
+      }
+
+      startTimer();
+    }
+
+
+
+    
+    function toggleInstructions() {
+      const box = document.getElementById('instructionBox');
+      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+    }
+    function showLetterCountMessage(message, type) {
+      const msgDiv = document.createElement('div');
+      msgDiv.className = 'letter-count-message ' + type; // Add the type class (nice-5 or impressive-7)
+      msgDiv.innerText = message;
+
+      // Append to the body
+      document.body.appendChild(msgDiv);
+
+      // Set timeout to remove the message after 2 seconds
+      setTimeout(() => {
+        msgDiv.remove();
+      }, 2000);
+    }
+
+    async function updateProgress() {
+      if (words.length === 0) {
+        renderLetterPool();
+        document.getElementById('progress').style.display = 'none';  // Hide it
+        return;
+      }
+
+      const res = await fetch('/progress', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        words,
+        puzzle_number: puzzleNumber
+      })
+      });
+
+      const j = await res.json();
+
+      if (j.ok) {
+        if (words.length > 0) {
+          document.getElementById('progress').style.display = 'block';
+          document.getElementById('progress').innerText =
+            j.percent + '% of letters used (' + j.used_letters + '/' + j.total_letters + ')';
+        }
+        if (j.percent === 100 && words.length > 0 && !gaveUp) {
+          stopTimer();
+          showPerfectScorePopup();  // animated popup
+          document.getElementById("leaderboardBox").style.display = "block";
+          await loadLeaderboard();
+          document.getElementById("completionStats").style.display = "block";
+
+          // ✅ Populate completion stats now (mimics the reload path)
+          const minutes = Math.floor(finalTime / 60);
+          const seconds = finalTime % 60;
+          document.getElementById("timeUsed").innerText = `⏱ Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+          document.getElementById("lettersUsed").innerText = `🧩 Letters Used: 100%`;
+          document.getElementById("statWords").innerText = `📝 Words found: ${words.length}`;
+
+          const fivePlus = words.filter(w => w.length >= 5).length;
+          const sevenPlus = words.filter(w => w.length >= 7).length;
+          document.getElementById("longWords").innerText = `⭐ 5+ letters: ${fivePlus} • 7+ letters: ${sevenPlus}`;
+
+          // ✅ Make sure the leaderboard form is visible
+          document.getElementById("leaderboardForm").style.display = "block";
+          document.getElementById('shareBtn').style.display = 'inline-block';
+          const padded = String(puzzleNumber).padStart(3, '0');
+          localStorage.setItem(`puzzle_completed_${padded}`, "true");
+          localStorage.setItem(`puzzle_time_${padded}`, finalTime);
+          localStorage.setItem(`puzzle_percent_${padded}`, 100);
+        }
+
+
+      } else {
+        showInvalidInput(j.message);
+      }
+
+      renderLetterPool();
+    }
+    async function loadArchive() {
+      const day = document.getElementById("archiveSelect").value;
+      if (!day) return;
+
+      const res = await fetch(`/archive/${day}`);
+      if (!res.ok) {
+        alert("Could not load puzzle.");
+        return;
+      }
+
+      const puzzle = await res.json();
+      // Reset everything
+      words = [];
+      gaveUp = false;
+      startTime = null;
+      finalTime = null;
+      clearInterval(timerInterval);
+
+
+      document.getElementById('input').style.display = 'inline-block';
+      document.querySelector('.button-row').style.display = 'flex';
+      document.getElementById('shareBtn').style.display = 'none';
+      document.getElementById('copyConfirm').style.display = 'none';
+      document.getElementById('progress').style.display = 'none';
+
+      // Update globals
+      window.puzzleLetters = puzzle.letters;
+      window.originalPhrase = puzzle.phrase;
+
+      // Update display
+      renderLetterPool(puzzle.phrase);
+      renderWordList();
+      updateTimerDisplay();
+      startTimer();
+    }
+    function loadLifetimeStats() {
+      const completedSpan = document.getElementById("statCompleted");
+      const gaveUpSpan = document.getElementById("statGaveUp");
+      const fastestSpan = document.getElementById("statFastest");
+
+      if (!completedSpan || !gaveUpSpan || !fastestSpan) return;
+      let completed = 0;
+      let gaveUp = 0;
+      let fastest = null;
+
+      for (let i = 1; i <= 999; i++) {  // check up to puzzle 999
+        const status = localStorage.getItem(`puzzle_completed_${i}`);
+        const time = parseInt(localStorage.getItem(`puzzle_time_${i}`), 10);
+
+        if (status === "true") {
+          completed++;
+          if (!isNaN(time) && (fastest === null || time < fastest)) {
+            fastest = time;
+          }
+        } else if (status === "gave_up") {
+          gaveUp++;
+        }
+      }
+
+      document.getElementById("statCompleted").innerText = completed;
+      document.getElementById("statGaveUp").innerText = gaveUp;
+
+      if (fastest !== null) {
+        const minutes = Math.floor(fastest / 60);
+        const seconds = fastest % 60;
+        document.getElementById("statFastest").innerText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      } else {
+        document.getElementById("statFastest").innerText = "—";
+      }
+    }
+
+
+    window.addEventListener('DOMContentLoaded', loadLifetimeStats);
+    
+    async function loadLeaderboard() {
+      try {
+        const res = await fetch(`/leaderboard/${puzzleNumber}`);
+        const data = await res.json();
+
+        if (data.ok) {
+          const list = document.getElementById("leaderboardList");
+          list.innerHTML = "";
+
+          const submittedName = localStorage.getItem("last_submitted_name");
+          const leaderboardKey = `leaderboard_submitted_${puzzleNumber}`;
+          const hasSubmitted = localStorage.getItem(leaderboardKey) === "true";
+          const form = document.getElementById("leaderboardForm");
+          if (hasSubmitted && form) {
+            form.style.display = "none";
+          }
+
+          data.leaderboard.forEach((entry, index) => {
+            const minutes = Math.floor(entry.time_seconds / 60);
+            const seconds = entry.time_seconds % 60;
+            const formattedTime = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+            const item = document.createElement("li");
+            item.className = "leaderboard-entry";
+
+            if (entry.name === submittedName) {
+              item.classList.add("highlighted-entry");
+            }
+
+            const timeSpan = entry.percent === 100
+            ? `<span class="time-highlight">${formattedTime}</span> • `
+            : '';
+
+            const percentSpan = entry.percent === 100
+              ? `<span class="perfect-highlight">${entry.percent}% used</span>`
+              : `${entry.percent}% used`;
+
+            item.innerHTML = `
+              <span class="leaderboard-name">${index + 1}. ${entry.name}</span>
+              <span class="leaderboard-stats">
+                ${timeSpan}${percentSpan} • ${entry.words} words • Longest: ${entry.longest || "-"}
+              </span>
+            `;
+
+            list.appendChild(item);
+          });
+        }
+      } catch (err) {
+        console.error("Error loading leaderboard:", err);
+      }
+    }
+
+
+    document.addEventListener("DOMContentLoaded", loadLeaderboard);
+
+    async function submitWord() {
+      // Clear any previous error message
+      document.getElementById('errorMessage').style.display = 'none';
+
+      const w = document.getElementById('input').value.trim().toLowerCase();
+      if (!w) return;
+
+      // ✅ Build letter counts from original phrase
+      const cleanedPhrase = window.originalPhrase.replace(/[^a-z]/gi, '').toLowerCase();
+      const availableLetters = {};
+      for (const letter of cleanedPhrase) {
+        availableLetters[letter] = (availableLetters[letter] || 0) + 1;
+      }
+
+      // ✅ Subtract letters already used in accepted words
+      for (const word of words) {
+        for (const letter of word.toLowerCase()) {
+          if (availableLetters[letter]) {
+            availableLetters[letter]--;
+          }
+        }
+      }
+
+      // ✅ Check the submitted word against the remaining available letters
+      const wordLetterCounts = {};
+      for (const letter of w) {
+        wordLetterCounts[letter] = (wordLetterCounts[letter] || 0) + 1;
+        if (!availableLetters[letter] || wordLetterCounts[letter] > availableLetters[letter]) {
+          showInvalidInput(`Letter '${letter.toUpperCase()}' is not in the pool or overused.`);
+          document.getElementById('input').value = '';
+          return;
+        }
+      }
+
+      // ✅ Send to backend
+      const res = await fetch('/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          word: w,
+          puzzle_number: puzzleNumber
+        })
+      });
+
+      const j = await res.json();
+
+      if (j.ok) {
+        words.push(w);
+
+        // ✅ Store updated word list in localStorage so leaderboard submission can access it later
+        localStorage.setItem(`submittedWords_${puzzleNumber}`, JSON.stringify(words));
+
+        renderWordList();
+        await updateProgress();
+
+        const wordElement = document.querySelector(`#word-${words.length - 1}`);
+        if (!wordElement) {
+          console.error(`Word element #word-${words.length - 1} not found!`);
+          return;
+        }
+
+        if (w.length >= 7) {
+          addBadge(wordElement, "7+");
+          showLetterCountMessage("Impressive! 7+ letters", "impressive-7");
+        } else if (w.length >= 5) {
+          addBadge(wordElement, "5+");
+          showLetterCountMessage("Nice! 5+ letters", "nice-5");
+        }
+      } else {
+        showInvalidInput(j.message);
+      }
+
+      document.getElementById('input').value = '';
+    }
+
+
+
+    function addBadge(wordElement, badgeType) {
+      // Safe name for badge to avoid issues with special characters like '+'
+      const safeBadgeType = 'badge-' + badgeType.replace('+', 'plus');
+      console.log(`Adding badge: ${safeBadgeType}`);
+
+      // Check if the badge already exists for this word to prevent duplicates
+      const existingBadge = wordElement.querySelector(`.word-badge.${safeBadgeType}`);
+      console.log(existingBadge);  // Log existing badge to check
+
+      if (!existingBadge) {
+        const badge = document.createElement("div");
+        badge.className = `word-badge ${safeBadgeType}`;
+        badge.innerText = badgeType;
+
+        console.log("Badge created:", badge);  // Log badge creation
+
+        // Append the badge inside the word element without removing any existing badges
+        wordElement.appendChild(badge);  // Add badge to the same word element
+      }
+    }
+    
+
+
+    function showBadge(message) {
+      const badge = document.createElement("div");
+      badge.className = "badge";
+      badge.innerText = message;
+
+      // Append the badge to the body or another container
+      document.body.appendChild(badge);
+
+      // Remove the badge after a short delay (e.g., 2 seconds)
+      setTimeout(() => {
+        badge.remove();
+      }, 2000); // 2 seconds
+    }
+    function goToArchive() {
+      window.location.href = "/archive.html";
+    }
+    function renderLetterPool() {
+      const phrase = (window.originalPhrase || "{{ phrase|lower }}").toLowerCase();
+      const cleanedPhrase = phrase.replace(/[^a-z\s]/g, '');  // Keep letters and spaces
+      const letterCounts = {};
+      const poolTiles = [];
+
+      for (let letter of cleanedPhrase) {
+        if (letter === ' ') {
+          poolTiles.push('<div class="letter-tile space-tile"></div>'); // Spacer tile
+        } else {
+          letterCounts[letter] = (letterCounts[letter] || 0) + 1;
+          poolTiles.push(`<div class="letter-tile">${letter.toUpperCase()}</div>`);
+        }
+      }
+
+      for (let word of words) {
+        for (let letter of word.toLowerCase()) {
+          for (let i = 0; i < poolTiles.length; i++) {
+            if (
+              poolTiles[i].includes(`>${letter.toUpperCase()}<`)
+            ) {
+              poolTiles[i] = '';  // remove used letter
+              break;
+            }
+          }
+        }
+      }
+
+      document.getElementById("letterPool").innerHTML = poolTiles.filter(Boolean).join('');
+    }
+
+    function renderWordList() {
+      document.getElementById('words').innerHTML =
+        words.map((x, i) =>
+          `<li id="word-${i}">${x} <button class="remove-btn" onclick="removeWord(${i})">✕</button></li>`
+        ).join('');
+    }
+
+    function removeWord(index) {
+      words.splice(index, 1);
+      renderWordList();
+      updateProgress();
+    }
+
+    function handleKey(e) {
+      if (e.key === 'Enter') submitWord();
+    }
+
+    function showInvalidInput(msg) {
+      const errorDiv = document.getElementById('errorMessage');
+      errorDiv.innerText = msg;
+      errorDiv.style.display = 'block';
+
+      setTimeout(() => {
+        errorDiv.style.display = 'none';
+      }, 2500);
+    }
+
+    function shuffleLetters() {
+      const pool = Array.from(document.querySelectorAll('.letter-tile'))
+        .map(tile => tile.innerText) // Get the letters from each tile
+        .filter(letter => letter !== ''); // Filter out empty tiles
+
+      // Shuffle the letters
+      for (let i = pool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [pool[i], pool[j]] = [pool[j], pool[i]];
+      }
+
+      // Render the letter pool with no empty tiles
+      let output = "";
+      for (let letter of pool) {
+        output += `<div class="letter-tile">${letter}</div>`;
+      }
+
+      document.getElementById("letterPool").innerHTML = output;
+    }
+
+    function giveUp() {
+      gaveUp = true;
+
+      // Send progress with 'gave_up' flag to server
+      fetch('/progress', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          words,
+          gave_up: true,
+          puzzle_number: puzzleNumber })
+      })
+      .then(response => response.json())
+      .then(j => {
+        if (j.ok) {
+          // 🛑 Stop the timer immediately
+          stopTimer();
+
+          // 💾 Save give-up progress to localStorage
+          const padded = String(puzzleNumber).padStart(3, '0');
+          localStorage.setItem(`puzzle_completed_${padded}`, "gave_up");
+          localStorage.setItem(`puzzle_time_${padded}`, finalTime);
+          localStorage.setItem(`puzzle_percent_${padded}`, j.percent);
+          document.getElementById('shareBtn').style.display = 'inline-block';
+          document.getElementById('input').style.display = 'none';
+          document.querySelector('.button-row').style.display = 'none';
+          startGame();
+        }
+      });
+    }
+
+
+    let startTime = null;
+    let timerInterval = null;
+    let finalTime = null;
+
+    function startTimer() {
+      startTime = Date.now();
+      timerInterval = setInterval(updateTimerDisplay, 1000);
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        finalTime = Math.floor((Date.now() - startTime) / 1000);
+        updateTimerDisplay(true);
+      }
+    }
+
+    function updateTimerDisplay(force = false) {
+      const now = Date.now();
+      const seconds = force ? finalTime : Math.floor((now - startTime) / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = seconds % 60;
+
+      document.getElementById("timer").innerText =
+        `⏱ Time: ${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    }
+
+    function shareResult() {
+      const phrase = "{{ phrase }}";
+      const number = {{ puzzle_number }};
+      const count = words.length;
+      const progressText = document.getElementById("progress").innerText;
+
+      // Time display
+      let timeDisplay = "⏱ Time: N/A";
+      if (finalTime !== null) {
+        const minutes = Math.floor(finalTime / 60);
+        const seconds = finalTime % 60;
+        timeDisplay = `⏱ Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+      }
+
+      // ✅ Add word-length achievements
+      const fivePlus = words.filter(w => w.length >= 5).length;
+      const sevenPlus = words.filter(w => w.length >= 7).length;
+
+      // ✅ Box emoji: green for win, yellow for give-up
+      const boxEmoji = gaveUp ? "🟨" : "🟩";
+
+      const result = `${boxEmoji} Rephrase #${number}
+    ${progressText}
+    📝 ${count} word${count !== 1 ? 's' : ''}
+    ⭐ 5+ letters: ${fivePlus} • 7+ letters: ${sevenPlus}
+    ${timeDisplay}
+    💬 Phrase: “${phrase}”`;
+
+      navigator.clipboard.writeText(result).then(() => {
+        const msg = document.getElementById('copyConfirm');
+        msg.style.display = 'block';
+        setTimeout(() => {
+          msg.style.display = 'none';
+        }, 2500);
+      });
+    }
+    
+    async function submitToLeaderboard() {
+      const key = `leaderboard_submitted_${puzzleNumber}`;
+      if (localStorage.getItem(key) === "true") {
+        document.getElementById("submitStatus").innerText = "You've already submitted to the leaderboard.";
+        return;
+      }
+      const storedWords = JSON.parse(localStorage.getItem(`submittedWords_${puzzleNumber}`) || "[]");
+
+      const name = document.getElementById("playerName").value.trim();
+      const status = localStorage.getItem(`puzzle_completed_${String(puzzleNumber).padStart(3, '0')}`);
+      const time = parseInt(localStorage.getItem(`puzzle_time_${String(puzzleNumber).padStart(3, '0')}`), 10);
+      const percent = parseInt(localStorage.getItem(`puzzle_percent_${String(puzzleNumber).padStart(3, '0')}`), 10);
+      const fivePlus = storedWords.filter(w => w.length >= 5).length;
+      const sevenPlus = storedWords.filter(w => w.length >= 7).length;
+
+      if (!name) {
+        document.getElementById("submitStatus").innerText = "Please enter your name.";
+        return;
+      }
+
+      if (percent <= 0 || isNaN(time)) {
+        document.getElementById("submitStatus").innerText = "You must complete the puzzle to submit.";
+        return;
+      }
+      const longest = storedWords.reduce((a, b) => b.length > a.length ? b : a, "");
+      const res = await fetch("/leaderboard_submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          puzzle_number: puzzleNumber,
+          puzzle_date: puzzleDate,
+          time_seconds: time,
+          percent_complete: percent,
+          word_count: storedWords.length,
+          five_plus_words: fivePlus,
+          seven_plus_words: sevenPlus,
+          submitted_words: storedWords,
+          longest_word: longest
+        })
+      });
+
+      const data = await res.json();
+      if (data.ok) {
+        localStorage.setItem(key, "true");  // ✅ Mark this puzzle as submitted
+        document.getElementById("submitStatus").innerText = "✅ Submitted! Refreshing…";
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
+ else {
+        document.getElementById("submitStatus").innerText = "❌ Error submitting score.";
+      }
+    }
+
+    document.getElementById("playerName").addEventListener("keydown", function(e) {
+      if (e.key === "Enter") {
+        submitToLeaderboard();
+      }
+    });
+
+    
+    function goToArchive() {
+      window.location.href = '/archive';
+    }
+    function showPerfectScorePopup() {
+      const popup = document.createElement('div');
+      popup.className = 'perfect-score-popup';
+      popup.innerText = '🎉 Perfect Score! You used every letter!';
+      document.body.appendChild(popup);
+
+      setTimeout(() => {
+        popup.remove();
+      }, 4500); // match animation duration
+    }
+    function closeAlreadyPlayedModal() {
+      document.getElementById("alreadyPlayedModal").style.display = "none";
+    }
+    const leaderboardKey = `leaderboard_submitted_${puzzleNumber}`;
+    if (localStorage.getItem(leaderboardKey) === "true") {
+      const form = document.getElementById("leaderboardForm");
+      if (form) form.style.display = "none";
+    }
+
+    renderLetterPool();
+    renderWordList();
+    updateProgress();
+  </script>
+  <div id="alreadyPlayedModal" class="modal">
+    <div class="modal-content">
+      <h2>Already Completed</h2>
+      <p style="text-align: center;">You’ve already completed today’s puzzle!</p>
+      <button onclick="closeAlreadyPlayedModal()">OK</button>
+    </div>
+  </div>
+</body>
+</html>

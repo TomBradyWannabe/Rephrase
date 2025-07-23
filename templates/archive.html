@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Rephrase Archive</title>
+  <style>
+    .stats-box {
+      background-color: #e3e6e6;
+      padding: 14px 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      font-size: 0.95em;
+      text-align: center;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    .stats-title {
+      font-weight: bold;
+      color: #444;
+      margin-bottom: 8px;
+      font-size: 1.05em;
+    }
+
+    .stats-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .stat-item {
+      color: #333;
+    }
+    .archive-header-row {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    .archive-header-row h1 {
+      flex: 1;
+      text-align: center;
+      font-size: 2em;
+      font-family: "Georgia", serif;
+      color: #444;
+      margin: 0;
+    }
+
+    .archive-header-row .back-link {
+      position: absolute;
+      right: 0;
+      font-size: 0.95em;
+      color: #007B8A;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    body {
+      font-family: "Helvetica Neue", sans-serif;
+      background-color: #f7f7f7;
+      color: #333;
+      padding: 30px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    ul {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    li {
+      margin-bottom: 12px;
+      padding: 10px 12px;
+      background: #eaecec;
+      border-radius: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .archive-link {
+      text-decoration: none;
+      color: #007B8A;
+      font-weight: bold;
+    }
+
+    .status {
+      font-size: 0.9em;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="archive-header-row">
+    <h1>Archive</h1>
+    <a href="/" class="back-link" style="font-weight: bold;">Back to today’s puzzle</a>
+  </div>
+
+  <div id="lifetimeStats" style="
+    margin-top: 20px;
+    padding: 12px 20px;
+    background-color: #f4f4f0;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-family: 'Georgia', serif;
+    font-size: 0.95em;
+    color: #333;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  ">
+    <div style="text-align: center; font-weight: bold; margin-bottom: 6px; color: #444;">
+      📊 Lifetime Stats
+    </div>
+    <div style="display: flex; justify-content: space-between;">
+      <div style="text-align: center; flex: 1;">
+        <div style="font-size: 1.2em;">🟩</div>
+        <div style="font-weight: bold;" id="statCompleted">0</div>
+        <div style="font-size: 0.85em;font-weight: bold; color: #666;">Completed</div>
+      </div>
+      <div style="text-align: center; flex: 1;">
+        <div style="font-size: 1.2em;">🟨</div>
+        <div style="font-weight: bold;" id="statGaveUp">0</div>
+        <div style="font-size: 0.85em;font-weight: bold; color: #666;">Gave Up</div>
+      </div>
+      <div style="text-align: center; flex: 1;">
+        <div style="font-size: 1.2em;">⏱</div>
+        <div style="font-weight: bold;" id="statFastest">—</div>
+        <div style="font-size: 0.85em;font-weight: bold; color: #666;">Fastest</div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <ul id="archiveList">
+    {% for puzzle in puzzle_dates %}
+      <li>
+        <a class="archive-link" href="/day/{{ puzzle.day }}">
+          {{ puzzle.date_str }}
+        </a>
+        <span class="status" data-day="{{ puzzle.day }}"></span>
+      </li>
+    {% endfor %}
+  </ul>
+
+  <script>
+    function loadLifetimeStats() {
+      let completed = 0;
+      let gaveUp = 0;
+      let fastest = null;
+
+      for (let i = 1; i <= 999; i++) {
+        const padded = String(i).padStart(3, '0');
+        const status = localStorage.getItem(`puzzle_completed_${padded}`);
+        const time = parseInt(localStorage.getItem(`puzzle_time_${padded}`), 10);
+
+        if (status === "true") {
+          completed++;
+          if (!isNaN(time) && (fastest === null || time < fastest)) {
+            fastest = time;
+          }
+        } else if (status === "gave_up") {
+          gaveUp++;
+        }
+      }
+
+      document.getElementById("statCompleted").innerText = completed;
+      document.getElementById("statGaveUp").innerText = gaveUp;
+
+      if (fastest !== null) {
+        const minutes = Math.floor(fastest / 60);
+        const seconds = fastest % 60;
+        document.getElementById("statFastest").innerText =
+          `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      } else {
+        document.getElementById("statFastest").innerText = "—";
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      loadLifetimeStats();
+
+      const statusSpans = document.querySelectorAll(".status");
+
+      statusSpans.forEach(span => {
+        const day = span.getAttribute("data-day");
+        const padded = String(day).padStart(3, '0');
+
+        const completed = localStorage.getItem(`puzzle_completed_${padded}`);
+        const time = parseInt(localStorage.getItem(`puzzle_time_${padded}`), 10);
+        const percent = localStorage.getItem(`puzzle_percent_${padded}`);
+
+        if (completed === "true" && !isNaN(time)) {
+          const minutes = Math.floor(time / 60);
+          const seconds = time % 60;
+          span.innerText = `🎉 Completed in ${minutes}:${seconds.toString().padStart(2, '0')}`;
+          span.style.color = "#429946";  // darker green
+          span.style.fontWeight = "bold";
+        } else if (completed === "gave_up" && percent !== null) {
+          span.innerText = `Gave up (${percent}% used)`;
+          span.style.color = "#b86e3c";  // marigold tone
+          span.style.fontWeight = "bold";
+        } else {
+          span.innerText = `Not started`;
+          span.style.color = "#888";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
