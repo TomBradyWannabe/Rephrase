@@ -1278,28 +1278,13 @@
         `⏱ Time: ${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
     }
 
-    async function shareResult() {
+    function shareResult() {
       const phrase = "{{ phrase }}";
       const number = {{ puzzle_number }};
       const count = words.length;
-
-      let percent = "—", used = "?", total = "?";
-      try {
-        const res = await fetch('/progress', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ words, puzzle_number: number })
-        });
-
-        const data = await res.json();
-        if (data.ok) {
-          percent = data.percent;
-          used = data.used_letters;
-          total = data.total_letters;
-        }
-      } catch (err) {
-        console.error("Error getting progress for share:", err);
-      }
+      const fivePlus = words.filter(w => w.length >= 5).length;
+      const sevenPlus = words.filter(w => w.length >= 7).length;
+      const boxEmoji = gaveUp ? "🟨" : "🟩";
 
       let timeDisplay = "⏱ Time: N/A";
       if (finalTime !== null) {
@@ -1308,9 +1293,10 @@
         timeDisplay = `⏱ Time: ${minutes}:${seconds.toString().padStart(2, '0')}`;
       }
 
-      const fivePlus = words.filter(w => w.length >= 5).length;
-      const sevenPlus = words.filter(w => w.length >= 7).length;
-      const boxEmoji = gaveUp ? "🟨" : "🟩";
+      // Just use basic stats — no async fetch
+      const percent = localStorage.getItem(`puzzle_percent_${String(number).padStart(3, '0')}`) || "—";
+      const used = "?";
+      const total = "?";
 
       const result = `${boxEmoji} Rephrase #${number}
     ${percent}% used (${used}/${total})
@@ -1322,6 +1308,7 @@
       const successful = copyToClipboard(result);
       if (!successful) {
         alert("Copy failed. Please copy manually.");
+        return;
       }
 
       const msg = document.getElementById('copyConfirm');
