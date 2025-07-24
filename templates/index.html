@@ -807,7 +807,18 @@
       startTimer();
     }
 
-
+    function copyToClipboard(text) {
+      const textarea = document.createElement("textarea");
+      textarea.value = text;
+      textarea.setAttribute("readonly", "");
+      textarea.style.position = "absolute";
+      textarea.style.left = "-9999px";
+      document.body.appendChild(textarea);
+      textarea.select();
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textarea);
+      return successful;
+    }
 
     
     function toggleInstructions() {
@@ -1272,11 +1283,7 @@
       const number = {{ puzzle_number }};
       const count = words.length;
 
-      // Get updated progress data from backend
-      let percent = "—";
-      let used = "?";
-      let total = "?";
-
+      let percent = "—", used = "?", total = "?";
       try {
         const res = await fetch('/progress', {
           method: 'POST',
@@ -1294,7 +1301,6 @@
         console.error("Error getting progress for share:", err);
       }
 
-      // Time display
       let timeDisplay = "⏱ Time: N/A";
       if (finalTime !== null) {
         const minutes = Math.floor(finalTime / 60);
@@ -1304,7 +1310,6 @@
 
       const fivePlus = words.filter(w => w.length >= 5).length;
       const sevenPlus = words.filter(w => w.length >= 7).length;
-
       const boxEmoji = gaveUp ? "🟨" : "🟩";
 
       const result = `${boxEmoji} Rephrase #${number}
@@ -1314,31 +1319,11 @@
     ${timeDisplay}
     💬 Phrase: “${phrase}”`;
 
-      // Attempt to copy with fallback for mobile
-      try {
-        await navigator.clipboard.writeText(result);
-      } catch (err) {
-        // Fallback for older mobile browsers
-        const fallbackTextarea = document.createElement("textarea");
-        fallbackTextarea.value = result;
-        fallbackTextarea.style.position = "fixed";
-        fallbackTextarea.style.top = "0";
-        fallbackTextarea.style.left = "0";
-        fallbackTextarea.style.opacity = "0";
-        document.body.appendChild(fallbackTextarea);
-        fallbackTextarea.focus();
-        fallbackTextarea.select();
-
-        try {
-          document.execCommand("copy");
-        } catch (e) {
-          alert("Copy failed. Please copy manually.");
-        }
-
-        document.body.removeChild(fallbackTextarea);
+      const successful = copyToClipboard(result);
+      if (!successful) {
+        alert("Copy failed. Please copy manually.");
       }
 
-      // Show confirmation message
       const msg = document.getElementById('copyConfirm');
       if (msg) {
         msg.style.display = 'block';
