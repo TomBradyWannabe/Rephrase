@@ -1314,14 +1314,40 @@
     ${timeDisplay}
     💬 Phrase: “${phrase}”`;
 
-      navigator.clipboard.writeText(result).then(() => {
-        const msg = document.getElementById('copyConfirm');
+      // Attempt to copy with fallback for mobile
+      try {
+        await navigator.clipboard.writeText(result);
+      } catch (err) {
+        // Fallback for older mobile browsers
+        const fallbackTextarea = document.createElement("textarea");
+        fallbackTextarea.value = result;
+        fallbackTextarea.style.position = "fixed";
+        fallbackTextarea.style.top = "0";
+        fallbackTextarea.style.left = "0";
+        fallbackTextarea.style.opacity = "0";
+        document.body.appendChild(fallbackTextarea);
+        fallbackTextarea.focus();
+        fallbackTextarea.select();
+
+        try {
+          document.execCommand("copy");
+        } catch (e) {
+          alert("Copy failed. Please copy manually.");
+        }
+
+        document.body.removeChild(fallbackTextarea);
+      }
+
+      // Show confirmation message
+      const msg = document.getElementById('copyConfirm');
+      if (msg) {
         msg.style.display = 'block';
         setTimeout(() => {
           msg.style.display = 'none';
         }, 2500);
-      });
+      }
     }
+
 
     
     async function submitToLeaderboard() {
