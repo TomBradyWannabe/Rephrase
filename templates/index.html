@@ -673,6 +673,7 @@
   <div id="progress">0% used (0/?)</div>
   <div id="completionStats" class="results-box" style="display: none;">
     <h2>Your Results Today</h2>
+    <div id="wordListDisplay" style="font-family: 'Helvetica Neue', sans-serif; font-size: 0.9em; color: #333; margin-bottom: 10px;"></div>
     <div class="stat-line"><span class="label">Time:</span> <span id="timeUsed" class="value">—</span></div>
     <div class="stat-line"><span class="label">Letters used:</span> <span id="lettersUsed" class="value">—</span></div>
     <div class="stat-line"><span class="label">Words found:</span> <span id="statWords" class="value">—</span></div>
@@ -760,6 +761,7 @@
           "[]"
         );
         const storedWords = words;
+        document.getElementById("wordListDisplay").innerText = storedWords.join(", ");
         if (!isNaN(time)) {
           finalTime = time;
           const minutes = Math.floor(time / 60);
@@ -879,6 +881,7 @@
           const fivePlus = words.filter(w => w.length >= 5).length;
           const sevenPlus = words.filter(w => w.length >= 7).length;
           document.getElementById("longWords").innerText = `5+ letters: ${fivePlus} • 7+ letters: ${sevenPlus}`;
+          document.getElementById("wordListDisplay").innerText = words.join(", ");
 
           // ✅ Make sure the leaderboard form is visible
           document.getElementById("leaderboardForm").style.display = "block";
@@ -931,6 +934,7 @@
       updateTimerDisplay();
       startTimer();
     }
+    
     function loadLifetimeStats() {
       const completedSpan = document.getElementById("statCompleted");
       const gaveUpSpan = document.getElementById("statGaveUp");
