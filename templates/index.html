@@ -781,7 +781,7 @@
         document.getElementById("longWords").innerText = `5+ letters: ${fivePlus} • 7+ letters: ${sevenPlus}`;
 
         // Show modal
-        document.getElementById("alreadyPlayedModal").style.display = "block";
+        // document.getElementById("alreadyPlayedModal").style.display = "block";
 
         // 🛑 Disable gameplay
         document.getElementById("input").style.display = "none";
@@ -1414,12 +1414,14 @@
     renderWordList();
     updateProgress();
   </script>
-  <div id="alreadyPlayedModal" class="modal">
-    <div class="modal-content">
-      <h2>Already Completed</h2>
-      <p style="text-align: center;">You’ve already completed today’s puzzle!</p>
-      <button onclick="closeAlreadyPlayedModal()">OK</button>
-    </div>
+<!--
+<div id="alreadyPlayedModal" class="modal">
+  <div class="modal-content">
+    <h2>Already Completed</h2>
+    <p style="text-align: center;">You’ve already completed today’s puzzle!</p>
+    <button onclick="closeAlreadyPlayedModal()">OK</button>
   </div>
+</div>
+-->
 </body>
 </html>
