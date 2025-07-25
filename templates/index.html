@@ -746,14 +746,14 @@
       if (status === "true" || status === "gave_up") {
         let message = "";
 
-        const modalTitle = document.querySelector("#alreadyPlayedModal h2");
-        const modalText = document.getElementById("completedTimeInfo");
+        // const modalTitle = document.querySelector("#alreadyPlayedModal h2");
+        // const modalText = document.getElementById("completedTimeInfo");
 
-        if (status === "gave_up") {
-          modalTitle.innerText = "You Gave Up";
-        } else {
-          modalTitle.innerText = "Already Completed";
-        }
+        // if (status === "gave_up") {
+        //   modalTitle.innerText = "You Gave Up";
+        // } else {
+        //   modalTitle.innerText = "Already Completed";
+        // }
 
         words = JSON.parse(
           localStorage.getItem(`submittedWords_${puzzleNumber}`) || 
