@@ -1299,11 +1299,9 @@
 
       // Just use basic stats — no async fetch
       const percent = localStorage.getItem(`puzzle_percent_${String(number).padStart(3, '0')}`) || "—";
-      const used = "?";
-      const total = "?";
 
       const result = `${boxEmoji} Rephrase #${number}
-    ${percent}% used (${used}/${total})
+    ${percent}% used 
     📝 ${count} word${count !== 1 ? 's' : ''}
     ⭐ 5+ letters: ${fivePlus} • 7+ letters: ${sevenPlus}
     ${timeDisplay}
