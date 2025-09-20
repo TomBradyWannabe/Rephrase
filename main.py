@@ -161,6 +161,9 @@ def index():
 
 @app.route('/submit', methods=['POST'])
 def submit_word():
+    if not request.json:
+        return jsonify({'ok': False, 'message': 'Invalid request format.'})
+    
     word = request.json.get('word', '').lower()
 
     # ✅ NEW: Get puzzle number from request, if it's an archive puzzle
@@ -208,6 +211,9 @@ def submit_word():
 
 @app.route('/progress', methods=['POST'])
 def progress():
+    if not request.json:
+        return jsonify({'ok': False, 'message': 'Invalid request format.'})
+    
     words = request.json.get('words', [])
     gave_up = request.json.get("gave_up", False)
 
@@ -292,10 +298,10 @@ def archive():
 
 @app.route('/archive/<int:day>')
 def get_archive(day):
+    # Zero-pad the day number to match the file naming convention like 001.json
+    filename = f"puzzles/{day:03}.json"  # Ensure 'puzzles' folder is in the correct location
+    
     try:
-        # Zero-pad the day number to match the file naming convention like 001.json
-        filename = f"puzzles/{day:03}.json"  # Ensure 'puzzles' folder is in the correct location
-
         # Print the full path for debugging
         print(f"Attempting to send file: {filename}")
 
@@ -307,7 +313,7 @@ def get_archive(day):
         return jsonify({'error': 'Puzzle not found'}), 404
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80)  # Ensure Replit runs it on the right port
+    app.run(host='0.0.0.0', port=5000)  # Ensure Replit runs it on the right port
     
 @app.route('/test_submit')
 def test_submit():
